@@ -1,17 +1,4 @@
 (async function main(state) {
-    function renderStationSelector() {
-        let selectStationsContainer = document.getElementById('select_stations');
-        selectStationsContainer.innerText = 'Select from the list...';
-    }
-
-    chrome.storage.local.get('stations', stations => {
-        if (stations != null && stations.length > 0) {
-            renderStations(stations);
-        } else {
-            renderStationSelector();
-        }
-    });
-
     chrome.runtime.onMessage.addListener(
         (request, sender, sendResponse) => {
             if (request.type == 'CREDENTIALS_SET') {
@@ -22,8 +9,14 @@
     );
 
     await loadCredentials(state);
+    await loadStations(state);
     console.debug({state});
-    setTimeout(async () => await renderStations(state), 10000);
+
+    if (!state['selectedStations'] || state['selectedStations'].length == 0) {
+        await renderStations(state);
+    }
+    
+    // setTimeout(async () => await renderStations(state), 10000);
 })({});
 
 function submitSelectedStations() {
@@ -36,10 +29,18 @@ function submitSelectedStations() {
 }
 
 function loadCredentials(state) {
+    return loadFromStorage(state, 'credentials');
+}
+
+function loadStations(state) {
+    return loadFromStorage(state, 'selectedStations');
+}
+
+function loadFromStorage(state, property) {
     return new Promise((resolve, reject) => {
-        chrome.storage.local.get('credentials', data => {
-            console.debug('received credentials from storage', data.credentials);
-            state.credentials = data.credentials;
+        chrome.storage.local.get(property, data => {
+            console.debug('received ' + property + ' from storage', data[property]);
+            state[property] = data[property];
             resolve();
         });
     }) 
@@ -80,5 +81,29 @@ async function renderStations(state) {
         return;
     }
 
-    console.log({ stations: responseJson.Results.map(r => ({ id: r.ServiceId, name: r.City })) });
+    const allStations = responseJson.Results.map(r => ({ id: r.ServiceId, name: r.City }));
+    console.debug({ allStations });
+    const form = document.getElementById('station_selection');
+    form.style.display = 'block';
+    const list = document.getElementById('station_list');
+    allStations.forEach(s => {
+        const checkboxId = 'chkbx_' + s.id;
+
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.value = s.id;
+        input.id = checkboxId;
+
+        const labelTxt = document.createTextNode(s.name);
+        const label = document.createElement('label');
+        label.for = checkboxId;
+        label.value = s.id;
+        label.appendChild(labelTxt);
+        
+        const item = document.createElement('li');
+        item.appendChild(label);
+        item.appendChild(input);
+        console.debug('adding list item', item);
+        list.appendChild(item);
+    });
 }
