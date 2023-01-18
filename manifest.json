@@ -1,0 +1,20 @@
+{
+    "name": "Passport appointment scheduler",
+    "description": "Get available appointments in selected stations",
+    "version": "0.1.0",
+    "manifest_version": 3,
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "permissions": [
+        "storage",
+        "activeTab",
+        "webRequest"
+    ],
+    "host_permissions": [
+        "https://*.myvisit.com/*"
+    ]
+}
