@@ -10,23 +10,22 @@
 
     await loadCredentials(state);
     await loadStations(state);
-    console.debug({state});
+    console.debug({ state });
+    await renderStations(state);
 
     if (!state['selectedStations'] || state['selectedStations'].length == 0) {
-        await renderStations(state);
+        document.getElementById('station_selection').style.display = 'block';
     }
-    
-    // setTimeout(async () => await renderStations(state), 10000);
+
+    document.getElementById('edit_station_selection').onclick = () => {
+        const form = document.getElementById('station_selection');
+        if (form.style.display == 'block') {
+            form.style.display = 'none';
+        } else {
+            form.style.display = 'block';
+        }
+    }
 })({});
-
-function submitSelectedStations() {
-    let stations = [];
-    let stationIds = [];
-
-    chrome.storage.local.set({ stations: stationIds }, () => {
-        renderStations(stations);
-    });
-}
 
 function loadCredentials(state) {
     return loadFromStorage(state, 'credentials');
@@ -43,15 +42,30 @@ function loadFromStorage(state, property) {
             state[property] = data[property];
             resolve();
         });
-    }) 
+    })
+}
+
+function selectedStationsPersistor(state, form) {
+    return async function persistSelectedStations(e) {
+        e.preventDefault();
+        const selected = document.querySelectorAll('ul#station_list input[type="checkbox"]:checked');
+        const selectedValues = [...selected].reduce((prev, curr) => ({ ...prev, [curr.value]: true }));
+        console.debug({ selectedValues });
+        form.style.display = 'none';
+
+        chrome.storage.local.set({ selectedStations: selectedValues }, () => {
+            state.selectedStations = selectedValues;
+        });
+
+        return false;
+    }
 }
 
 async function renderStations(state) {
     const client = createClient(state.credentials);
     const allStations = await client.getStations();
-    console.debug({ allStations });
     const form = document.getElementById('station_selection');
-    form.style.display = 'block';
+    form.onsubmit = selectedStationsPersistor(state, form);
     const list = document.getElementById('station_list');
     allStations.forEach(s => {
         const checkboxId = 'chkbx_' + s.id;
@@ -60,6 +74,9 @@ async function renderStations(state) {
         input.type = 'checkbox';
         input.value = s.id;
         input.id = checkboxId;
+        if (state.selectedStations && state.selectedStations[s.id]) {
+            input.checked = true;
+        }
 
         const labelTxt = document.createTextNode(s.name);
         const label = document.createElement('label');
@@ -70,7 +87,6 @@ async function renderStations(state) {
         const item = document.createElement('li');
         item.appendChild(label);
         item.appendChild(input);
-        console.debug('adding list item', item);
         list.appendChild(item);
     });
 }
