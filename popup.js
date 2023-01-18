@@ -15,6 +15,14 @@
 
     if (!state['selectedStations'] || state['selectedStations'].length == 0) {
         document.getElementById('station_selection').style.display = 'block';
+    } else {
+        document.getElementById('appointment_openings').style.display = 'block';
+        const client = createClient(state.credentials);
+        console.log(typeof state.selectedStations);
+        for (const [key, value] of Object.entries(state.selectedStations)) {
+            const dates = await client.getDates(key);
+            console.log(value, {dates});
+        }
     }
 
     document.getElementById('edit_station_selection').onclick = () => {
@@ -40,7 +48,7 @@ function loadFromStorage(state, property) {
         chrome.storage.local.get(property, data => {
             console.debug('received ' + property + ' from storage', data[property]);
             state[property] = data[property];
-            resolve();
+            resolve(data[property]);
         });
     })
 }
@@ -49,7 +57,11 @@ function selectedStationsPersistor(state, form) {
     return async function persistSelectedStations(e) {
         e.preventDefault();
         const selected = document.querySelectorAll('ul#station_list input[type="checkbox"]:checked');
-        const selectedValues = [...selected].reduce((prev, curr) => ({ ...prev, [curr.value]: true }));
+        const selectedValues = [...selected].reduce((prev, curr) => {
+            const stationId = curr.value;
+            const label = document.querySelector(`#${getListItemId(stationId)} label`)
+            return { ...prev, [stationId]: label.innerText };
+        });
         console.debug({ selectedValues });
         form.style.display = 'none';
 
@@ -68,7 +80,7 @@ async function renderStations(state) {
     form.onsubmit = selectedStationsPersistor(state, form);
     const list = document.getElementById('station_list');
     allStations.forEach(s => {
-        const checkboxId = 'chkbx_' + s.id;
+        const checkboxId = getCheckboxId(s.id);
 
         const input = document.createElement('input');
         input.type = 'checkbox';
@@ -85,8 +97,17 @@ async function renderStations(state) {
         label.appendChild(labelTxt);
 
         const item = document.createElement('li');
+        item.id = getListItemId(s.id);
         item.appendChild(label);
         item.appendChild(input);
         list.appendChild(item);
     });
+}
+
+function getCheckboxId(stationId) {
+    return `chkbx_${stationId}`;
+}
+
+function getListItemId(stationId) {
+    return `li_${stationId}`;
 }

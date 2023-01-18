@@ -10,26 +10,28 @@ function createClient({ appApiKey }) {
      * @returns {Station[]}
      */
     async function getStations() {
-        const response = await fetch('https://central.myvisit.com/CentralAPI/LocationSearch?currentPage=1&isFavorite=false&orderBy=Distance&organizationId=56&position={"lat":"32.0889","lng":"34.858","accuracy":1440}&resultsInPage=100&serviceTypeId=156&src=mvws', {
-            mode: 'cors',
-            headers: {
-                'application-name': 'myVisit.com v3.5',
-                'application-api-key': appApiKey,
-                accept: 'application/json, text/plain, */*',
-            }
-        });
-        if (!response.ok) {
-            console.error('request failed with code', response.status);
-            return;
-        }
-        const responseJson = await response.json();
-        console.debug({ responseJson });
-        if (!responseJson.Success) {
-            console.error('failed requesting for stations');
-            return;
+        const url = 'https://central.myvisit.com/CentralAPI/LocationSearch?currentPage=1&isFavorite=false&orderBy=Distance&organizationId=56&position={"lat":"32.0889","lng":"34.858","accuracy":1440}&resultsInPage=100&serviceTypeId=156&src=mvws';
+        const response = await fetchUrl(appApiKey, url);
+
+        return response.Results.map(r => ({ id: r.ServiceId, name: r.City }));
+    }
+
+    async function getDates(stationId) {
+        const today = new Date();
+        const todayFmt = [
+            today.getFullYear(),
+            String(today.getMonth() + 1).padStart(2, '0'),
+            String(today.getDate()).padStart(2, '0'),
+        ].join('-')
+
+        const url = `https://central.myvisit.com/CentralAPI/SearchAvailableDates?maxResults=31&serviceId=${stationId}&startDate=${todayFmt}`;
+        const response = await fetchUrl(appApiKey, url);
+
+        if (!response.Results) {
+            return [];
         }
 
-        return responseJson.Results.map(r => ({ id: r.ServiceId, name: r.City }));
+        return response.Results.map(r => r.calendarDate);
     }
 
     if (!appApiKey) {
@@ -38,5 +40,29 @@ function createClient({ appApiKey }) {
 
     return {
         getStations,
+        getDates,
     };
+}
+
+async function fetchUrl(appApiKey, url) {
+    const response = await fetch(url, {
+        mode: 'cors',
+        headers: {
+            'application-name': 'myVisit.com v3.5',
+            'application-api-key': appApiKey,
+            accept: 'application/json, text/plain, */*',
+        }
+    });
+    if (!response.ok) {
+        console.error('request failed with code', response.status);
+        return;
+    }
+    const responseJson = await response.json();
+    console.debug({ responseJson });
+    if (!responseJson.Success) {
+        console.error('failed requesting for stations');
+        return;
+    }
+
+    return responseJson;
 }
