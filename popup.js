@@ -47,41 +47,8 @@ function loadFromStorage(state, property) {
 }
 
 async function renderStations(state) {
-    if (!state.credentials) {
-        console.debug('missing credentials');
-        return;
-    }
-    
-    if (!state.credentials.cookie) {
-        console.debug('credentials', state.credentials)
-        console.debug('missing cookie');
-        return;
-    }
-    if (!state.credentials.appApiKey) {
-        console.debug('missing app api key');
-        return;
-    }
-
-    const response = await fetch('https://central.myvisit.com/CentralAPI/LocationSearch?currentPage=1&isFavorite=false&orderBy=Distance&organizationId=56&position={"lat":"32.0889","lng":"34.858","accuracy":1440}&resultsInPage=100&serviceTypeId=156&src=mvws', {
-        mode: 'cors',
-        headers: {
-            'application-name': 'myVisit.com v3.5',
-            'application-api-key': state.credentials.appApiKey,
-            accept: 'application/json, text/plain, */*',
-        }
-    });
-    if (!response.ok) {
-        console.error('request failed with code', response.status);
-        return;
-    }
-    const responseJson = await response.json();
-    console.debug({responseJson});
-    if (!responseJson.Success) {
-        console.error('failed requesting for stations');
-        return;
-    }
-
-    const allStations = responseJson.Results.map(r => ({ id: r.ServiceId, name: r.City }));
+    const client = createClient(state.credentials);
+    const allStations = await client.getStations();
     console.debug({ allStations });
     const form = document.getElementById('station_selection');
     form.style.display = 'block';
@@ -99,7 +66,7 @@ async function renderStations(state) {
         label.for = checkboxId;
         label.value = s.id;
         label.appendChild(labelTxt);
-        
+
         const item = document.createElement('li');
         item.appendChild(label);
         item.appendChild(input);
