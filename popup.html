@@ -5,15 +5,20 @@
         <link rel="stylesheet" href="popup.css" />
     </head>
     <body>
-        <form id="station_selection" style="display: none">
-            <ul id="station_list"></ul>
-            <input type="submit" value="שמירה" />
-        </form>
-        <button id="edit_station_selection">עריכת לשכות</button>
-        <div id="appointment_openings" style="display: none;">
-            <ul id="openings_list"></ul>
-        </div>
-        <script src="client.js"></script>
-        <script src="popup.js"></script>
+        <main id="app">
+            <form id="station_selection" style="display: none">
+                <ul id="station_list"></ul>
+                <input type="submit" value="שמירה" />
+            </form>
+            <button id="edit_station_selection">עריכת לשכות</button>
+            <div id="appointment_openings" style="display: none;">
+                <ul id="openings_list"></ul>
+            </div>
+            <script src="client.js"></script>
+            <script src="popup.js"></script>
+        </main>
+        <main id="unauthorized" style="display: none">
+            נראה שהתנתקת ממערכת myVisit. יש לבצע התחברות ולפתוח מחדש את התוסף.
+        </main>
     </body>
 </html>

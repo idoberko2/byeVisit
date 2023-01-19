@@ -20,7 +20,16 @@
         const client = createClient(state.credentials);
         console.log(typeof state.selectedStations);
         for (const [key, value] of Object.entries(state.selectedStations)) {
-            const dates = await client.getDates(key);
+            let dates;
+            try {
+                dates = await client.getDates(key);
+            } catch (e) {
+                if (e == ErrUnauthorized) {
+                    document.getElementById('app').style.display = 'none';
+                    document.getElementById('unauthorized').style.display = 'block';
+                    return;
+                }
+            }
             console.debug(value, { dates });
             const filteredDates = dates.filter(d => Date.parse(d) < new Date((new Date()).setMonth((new Date()).getMonth() + 3)));
             const stationOpenings = {

@@ -4,6 +4,8 @@
  * @property {string} name - The station name
  */
 
+const ErrUnauthorized = new Error('unauthorized');
+
 function createClient({ appApiKey }) {
     /**
      * 
@@ -53,6 +55,9 @@ async function fetchUrl(appApiKey, url) {
             accept: 'application/json, text/plain, */*',
         }
     });
+    if (response.status == 401) {
+        throw ErrUnauthorized;
+    }
     if (!response.ok) {
         console.error('request failed with code', response.status);
         return;
