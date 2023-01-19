@@ -23,5 +23,4 @@ chrome.webRequest.onSendHeaders.addListener(
             });
         });
     },
-    // { urls: ['https://central.myvisit.com/CentralAPI/UserGetInfo?useCookie=false'] }, ['requestHeaders', 'extraHeaders']);
-    { urls: ['https://central.myvisit.com/CentralAPI/UserGetInfo?useCookie=false'] }, );
+    { urls: ['https://central.myvisit.com/CentralAPI/*'] }, ['requestHeaders', 'extraHeaders']);

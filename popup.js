@@ -60,7 +60,7 @@ function selectedStationsPersistor(state, form) {
         const selectedValues = [...selected].reduce((prev, curr) => {
             const stationId = curr.value;
             const label = document.querySelector(`#${getListItemId(stationId)} label`)
-            return { ...prev, [stationId]: label.innerText };
+            return ({ ...prev, [stationId]: label.innerText });
         });
         console.debug({ selectedValues });
         form.style.display = 'none';
