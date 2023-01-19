@@ -21,7 +21,15 @@
         console.log(typeof state.selectedStations);
         for (const [key, value] of Object.entries(state.selectedStations)) {
             const dates = await client.getDates(key);
-            console.log(value, {dates});
+            console.debug(value, { dates });
+            const stationOpenings = {
+                name: value,
+                openings: dates.map(d => ({
+                    date: d,
+                    times: [],
+                }))
+            };
+            renderOpening(stationOpenings);
         }
     }
 
@@ -71,6 +79,39 @@ function selectedStationsPersistor(state, form) {
 
         return false;
     }
+}
+
+function renderOpening(stationOpenings) {
+    const openingHeader = document.createElement('header');
+    openingHeader.appendChild(document.createTextNode(stationOpenings.name));
+
+    const datesList = document.createElement('ul');
+    stationOpenings.openings.forEach(o => {
+        const dateHeader = document.createElement('header');
+        dateHeader.appendChild(document.createTextNode(o.date));
+
+        const dateMain = document.createElement('main');
+        const timesList = document.createElement('ul');
+        o.times.forEach(t => {
+            const timeItem = document.createElement('li');
+            timeItem.appendChild(document.createTextNode(t));
+            timesList.appendChild(timeItem);
+        });
+        dateMain.appendChild(timesList);
+        const dateItem = document.createElement('li');
+        dateItem.appendChild(dateHeader);
+        dateItem.appendChild(dateMain);
+        datesList.appendChild(dateItem);
+    });
+
+    const openingMain = document.createElement('main');
+    openingMain.appendChild(datesList);
+
+    const openingItem = document.createElement('li');
+    openingItem.appendChild(openingHeader);
+    openingItem.appendChild(openingMain);
+
+    document.getElementById('openings_list').appendChild(openingItem);
 }
 
 async function renderStations(state) {
