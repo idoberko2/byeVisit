@@ -25,7 +25,7 @@ const Renderer = {};
             const stationOpenings = {
                 name: value,
                 openings: filteredDates.map(d => ({
-                    date: d,
+                    date: new Date(Date.parse(d)).toLocaleDateString('he-IL'),
                     times: [],
                 }))
             };
