@@ -15,8 +15,9 @@ const NUMBER_OF_MONTHS = 3;
     console.debug({ state });
     await Renderer.renderStations(state, selectedStationsPersistor);
 
-    if (!state['selectedStations'] || state['selectedStations'].length == 0) {
-        document.getElementById('station_selection').style.display = 'block';
+    if (!isInitialized(state)) {
+        console.debug('not initialized', state);
+        gettingStartedFlow();
     } else {
         await Renderer.renderOpenings(state);
     }
@@ -35,8 +36,23 @@ function loadCredentials(state) {
     return loadFromStorage(state, 'credentials');
 }
 
-function loadStations(state) {
-    return loadFromStorage(state, 'selectedStations');
+async function loadStations(state) {
+    await loadFromStorage(state, 'allStations');
+    if (!state.allStations || state.allStations.length == 0) {
+        const loadTxt = document.createTextNode('טוען לשכות...');
+        const stationLoader = document.getElementById('station_loader');
+        stationLoader.appendChild(loadTxt);
+        const client = createClient(state.credentials);
+        const allStations = await client.getStations();
+
+        chrome.storage.local.set({ allStations }, () => {
+            console.debug('set allStations', allStations);
+        });
+        state.allStations = allStations;
+        document.getElementById('station_loader').removeChild(loadTxt);
+    }
+
+    await loadFromStorage(state, 'selectedStations');
 }
 
 function loadFromStorage(state, property) {
@@ -65,6 +81,18 @@ function selectedStationsPersistor(state, form) {
             state.selectedStations = selectedValues;
         });
 
+        document.getElementById('edit_station_selection').style.display = 'block';
+
         return false;
     }
+}
+
+function isInitialized(state) {
+    return state.selectedStations && Object.entries(state.selectedStations).length > 0;
+}
+
+function gettingStartedFlow() {
+    document.getElementById('station_selection_cntnr').style.display = 'block';
+    document.getElementById('station_selection').style.display = 'block';
+    document.getElementById('edit_station_selection').style.display = 'none';
 }

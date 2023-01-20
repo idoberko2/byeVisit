@@ -33,6 +33,7 @@ const Renderer = {};
         }
     
         openings.removeChild(openingsHeader);
+        document.getElementById('station_selection_cntnr').style.display = 'block';
     }
     
     function renderOpening(stationOpenings) {
@@ -72,12 +73,10 @@ const Renderer = {};
     }
     
     async function renderStations(state, handleSubmit) {
-        const client = createClient(state.credentials);
-        const allStations = await client.getStations();
         const form = document.getElementById('station_selection');
         form.onsubmit = handleSubmit(state, form);
         const list = document.getElementById('station_list');
-        allStations.forEach(s => {
+        state.allStations.forEach(s => {
             const checkboxId = getCheckboxId(s.id);
     
             const input = document.createElement('input');
