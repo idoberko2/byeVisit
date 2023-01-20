@@ -2,4 +2,22 @@ body {
     width: 300px;
     height: 400px;
     direction: rtl;
+    font-family: 'Noto Sans Hebrew', sans-serif;
+    font-size: 14pt ;
+}
+
+button {
+    font: inherit;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul#openings_list li {
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
 }

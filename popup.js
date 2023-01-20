@@ -1,3 +1,5 @@
+const NUMBER_OF_MONTHS = 3;
+
 (async function main(state) {
     chrome.runtime.onMessage.addListener(
         (request, sender, sendResponse) => {
@@ -16,31 +18,7 @@
     if (!state['selectedStations'] || state['selectedStations'].length == 0) {
         document.getElementById('station_selection').style.display = 'block';
     } else {
-        document.getElementById('appointment_openings').style.display = 'block';
-        const client = createClient(state.credentials);
-        console.log(typeof state.selectedStations);
-        for (const [key, value] of Object.entries(state.selectedStations)) {
-            let dates;
-            try {
-                dates = await client.getDates(key);
-            } catch (e) {
-                if (e == ErrUnauthorized) {
-                    document.getElementById('app').style.display = 'none';
-                    document.getElementById('unauthorized').style.display = 'block';
-                    return;
-                }
-            }
-            console.debug(value, { dates });
-            const filteredDates = dates.filter(d => Date.parse(d) < new Date((new Date()).setMonth((new Date()).getMonth() + 3)));
-            const stationOpenings = {
-                name: value,
-                openings: filteredDates.map(d => ({
-                    date: d,
-                    times: [],
-                }))
-            };
-            renderOpening(stationOpenings);
-        }
+        await renderOpenings(state);
     }
 
     document.getElementById('edit_station_selection').onclick = () => {
@@ -91,6 +69,40 @@ function selectedStationsPersistor(state, form) {
     }
 }
 
+async function renderOpenings(state) {
+    const openings = document.getElementById('appointment_openings');
+    openings.style.display = 'block';
+    const openingsHeader = document.createElement('header');
+    openingsHeader.appendChild(document.createTextNode(`מחפש תורים ב${NUMBER_OF_MONTHS} החודשים הקרובים...`));
+    openings.insertBefore(openingsHeader, document.querySelector('#appointment_openings main'));
+    const client = createClient(state.credentials);
+    console.log(typeof state.selectedStations);
+    for (const [key, value] of Object.entries(state.selectedStations)) {
+        let dates;
+        try {
+            dates = await client.getDates(key);
+        } catch (e) {
+            if (e == ErrUnauthorized) {
+                document.getElementById('app').style.display = 'none';
+                document.getElementById('unauthorized').style.display = 'block';
+                return;
+            }
+        }
+        console.debug(value, { dates });
+        const filteredDates = dates.filter(d => Date.parse(d) < new Date((new Date()).setMonth((new Date()).getMonth() + NUMBER_OF_MONTHS)));
+        const stationOpenings = {
+            name: value,
+            openings: filteredDates.map(d => ({
+                date: d,
+                times: [],
+            }))
+        };
+        renderOpening(stationOpenings);
+    }
+
+    openings.removeChild(openingsHeader);
+}
+
 function renderOpening(stationOpenings) {
     const openingHeader = document.createElement('header');
     openingHeader.appendChild(document.createTextNode(stationOpenings.name));
@@ -117,7 +129,7 @@ function renderOpening(stationOpenings) {
         });
         openingMain.appendChild(datesList);
     } else {
-        openingMain.appendChild(document.createTextNode('אין תאריכים בשלושת החודשים הבאים'));
+        openingMain.appendChild(document.createTextNode('אין תורים 😔'));
     }
 
     const openingItem = document.createElement('li');
