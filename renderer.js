@@ -21,7 +21,10 @@ const Renderer = {};
                 }
             }
             console.debug(value, { dates });
-            const filteredDates = dates.filter(d => Date.parse(d) < new Date((new Date()).setMonth((new Date()).getMonth() + NUMBER_OF_MONTHS)));
+            let filteredDates = [];
+            if (dates && Array.isArray(dates)) {
+                filteredDates = dates.filter(d => Date.parse(d) < new Date((new Date()).setMonth((new Date()).getMonth() + NUMBER_OF_MONTHS)));
+            }
             const stationOpenings = {
                 name: value,
                 openings: filteredDates.map(d => ({
