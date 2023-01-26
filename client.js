@@ -33,7 +33,18 @@ function createClient({ appApiKey }) {
             return [];
         }
 
-        return response.Results.map(r => r.calendarDate);
+        return response.Results.map(r => ({ calendarDate: r.calendarDate, calendarId: r.calendarId }));
+    }
+
+    async function getTimes(stationId, dateId) {
+        const url = `https://central.myvisit.com/CentralAPI/SearchAvailableSlots?ServiceId=${stationId}&CalendarId=${dateId}`;
+        const response = await fetchUrl(appApiKey, url);
+
+        if (!response.Results) {
+            return [];
+        }
+
+        return response.Results.map(r => ({ timeId: r.Time, humanReadableTime: parseHumanReadableTime(r.Time) }));
     }
 
     if (!appApiKey) {
@@ -43,6 +54,7 @@ function createClient({ appApiKey }) {
     return {
         getStations,
         getDates,
+        getTimes,
     };
 }
 
@@ -70,4 +82,11 @@ async function fetchUrl(appApiKey, url) {
     }
 
     return responseJson;
+}
+
+function parseHumanReadableTime(time) {
+    const minutes = time % 60;
+    const hours = (time - minutes) / 60;
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 }

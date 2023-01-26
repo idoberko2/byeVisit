@@ -23,13 +23,14 @@ const Renderer = {};
             console.debug(value, { dates });
             let filteredDates = [];
             if (dates && Array.isArray(dates)) {
-                filteredDates = dates.filter(d => Date.parse(d) < new Date((new Date()).setMonth((new Date()).getMonth() + NUMBER_OF_MONTHS)));
+                const xMonthsFromNow = new Date((new Date()).setMonth((new Date()).getMonth() + NUMBER_OF_MONTHS));
+                filteredDates = dates.filter(d => Date.parse(d.calendarDate) < xMonthsFromNow);
             }
             const stationOpenings = {
                 name: value,
                 openings: filteredDates.map(d => ({
-                    date: new Date(Date.parse(d)).toLocaleDateString('he-IL'),
-                    times: [],
+                    date: new Date(Date.parse(d.calendarDate)).toLocaleDateString('he-IL'),
+                    timesPromise: client.getTimes(key, d.calendarId),
                 }))
             };
             renderOpening(stationOpenings);
@@ -52,11 +53,12 @@ const Renderer = {};
     
                 const dateMain = document.createElement('main');
                 const timesList = document.createElement('ul');
-                o.times.forEach(t => {
+                o.timesPromise.then(avlbleTimes => avlbleTimes.forEach(t => {
                     const timeItem = document.createElement('li');
-                    timeItem.appendChild(document.createTextNode(t));
+                    timeItem.id = t.timeId;
+                    timeItem.appendChild(document.createTextNode(t.humanReadableTime));
                     timesList.appendChild(timeItem);
-                });
+                }));
                 dateMain.appendChild(timesList);
                 const dateItem = document.createElement('li');
                 dateItem.appendChild(dateHeader);
