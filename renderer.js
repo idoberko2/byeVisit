@@ -47,12 +47,14 @@ const Renderer = {};
     
         if (stationOpenings.openings.length > 0) {
             const datesList = document.createElement('ul');
+            datesList.className = 'dates_list';
             stationOpenings.openings.forEach(o => {
                 const dateHeader = document.createElement('header');
                 dateHeader.appendChild(document.createTextNode(o.date));
     
                 const dateMain = document.createElement('main');
                 const timesList = document.createElement('ul');
+                timesList.className = 'times_list';
                 o.timesPromise.then(avlbleTimes => avlbleTimes.forEach(t => {
                     const timeItem = document.createElement('li');
                     timeItem.id = t.timeId;
