@@ -1,7 +1,7 @@
 const Renderer = {};
 
 (function initRenderer() {
-    async function renderOpenings(state) {
+    async function renderOpenings(state, handleSelect) {
         const openings = document.getElementById('appointment_openings');
         openings.style.display = 'block';
         const openingsHeader = document.createElement('header');
@@ -29,18 +29,18 @@ const Renderer = {};
             const stationOpenings = {
                 name: value,
                 openings: filteredDates.map(d => ({
-                    date: new Date(Date.parse(d.calendarDate)).toLocaleDateString('he-IL'),
+                    date: d,
                     timesPromise: client.getTimes(key, d.calendarId),
                 }))
             };
-            renderOpening(stationOpenings);
+            renderOpening(stationOpenings, handleSelect);
         }
     
         openings.removeChild(openingsHeader);
         document.getElementById('station_selection_cntnr').style.display = 'block';
     }
     
-    function renderOpening(stationOpenings) {
+    function renderOpening(stationOpenings, handleSelect) {
         const openingHeader = document.createElement('header');
         openingHeader.appendChild(document.createTextNode(stationOpenings.name));
         const openingMain = document.createElement('main');
@@ -50,14 +50,15 @@ const Renderer = {};
             datesList.className = 'dates_list';
             stationOpenings.openings.forEach(o => {
                 const dateHeader = document.createElement('header');
-                dateHeader.appendChild(document.createTextNode(o.date));
+                dateHeader.appendChild(document.createTextNode(new Date(Date.parse(o.date.calendarDate)).toLocaleDateString('he-IL')));
     
                 const dateMain = document.createElement('main');
                 const timesList = document.createElement('ul');
                 timesList.className = 'times_list';
                 o.timesPromise.then(avlbleTimes => avlbleTimes.forEach(t => {
                     const timeItem = document.createElement('li');
-                    timeItem.id = t.timeId;
+                    timeItem.id = getTimeId(o.date.calendarId, t.timeId);
+                    timeItem.onclick = () => handleSelect(o.date.calendarId, t.timeId);
                     timeItem.appendChild(document.createTextNode(t.humanReadableTime));
                     timesList.appendChild(timeItem);
                 }));
@@ -116,7 +117,12 @@ const Renderer = {};
         return `li_${stationId}`;
     }
 
+    function getTimeId(calendarId, timeId) {
+        return `t_${calendarId}_${timeId}`;
+    }
+
     Renderer.renderStations = renderStations;
     Renderer.renderOpenings = renderOpenings;
     Renderer.getListItemId = getListItemId;
+    Renderer.getTimeId = getTimeId;
 })();

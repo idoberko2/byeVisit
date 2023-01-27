@@ -19,7 +19,7 @@ const NUMBER_OF_MONTHS = 3;
         console.debug('not initialized', state);
         gettingStartedFlow();
     } else {
-        await Renderer.renderOpenings(state);
+        await Renderer.renderOpenings(state, createSelectHandler(state));
     }
 
     document.getElementById('edit_station_selection').onclick = () => {
@@ -95,4 +95,14 @@ function gettingStartedFlow() {
     document.getElementById('station_selection_cntnr').style.display = 'block';
     document.getElementById('station_selection').style.display = 'block';
     document.getElementById('edit_station_selection').style.display = 'none';
+}
+
+function createSelectHandler(state) {
+    return function selectHandler(calendarId, timeId) {
+        if (state.selected) {
+            document.getElementById(Renderer.getTimeId(state.selected.calendarId, state.selected.timeId)).classList.remove('selected');
+        }
+        state.selected = { calendarId, timeId };
+        document.getElementById(Renderer.getTimeId(calendarId, timeId)).classList.add('selected');
+    }
 }
