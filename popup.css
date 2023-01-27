@@ -30,7 +30,7 @@ ul#openings_list li ul.dates_list li {
 ul#openings_list li ul.dates_list li ul.times_list {
     display: flex;
     flex-flow: wrap;
-    justify-content: space-evenly;
+    justify-content: flex-start;
 }
 
 ul#openings_list li ul.dates_list li ul.times_list li {
@@ -38,4 +38,5 @@ ul#openings_list li ul.dates_list li ul.times_list li {
     border: 1px solid #aaa;
     border-radius: 5px;
     font-size: 10pt;
+    margin-left: 4px;
 }
