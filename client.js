@@ -5,6 +5,7 @@
  */
 
 const ErrUnauthorized = new Error('unauthorized');
+const ErrSetAppointmentFailed = new Error('failed to set appointment');
 
 function createClient({ appApiKey }) {
     /**
@@ -47,6 +48,19 @@ function createClient({ appApiKey }) {
         return response.Results.map(r => ({ timeId: r.Time, humanReadableTime: parseHumanReadableTime(r.Time) }));
     }
 
+    async function setAppointment(visitId, stationId, date, timeId) {
+        const url = `https://central.myvisit.com/CentralAPI/AppointmentSet?ServiceId=${stationId}` + 
+        `&appointmentDate=${date}` +
+        `&appointmentTime=${timeId}` +
+        `&preparedVisitId=${visitId}` +
+        `&position={"lat":"32.0889","lng":"34.858","accuracy":1440}`;
+        const response = await fetchUrl(appApiKey, url);
+
+        if (!response.Success) {
+            throw ErrSetAppointmentFailed;
+        }
+    }
+
     if (!appApiKey) {
         throw new Error('missing api key');
     }
@@ -55,6 +69,7 @@ function createClient({ appApiKey }) {
         getStations,
         getDates,
         getTimes,
+        setAppointment,
     };
 }
 

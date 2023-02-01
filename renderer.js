@@ -29,6 +29,7 @@ const Renderer = {};
             const stationOpenings = {
                 name: value,
                 openings: filteredDates.map(d => ({
+                    stationId: key,
                     date: d,
                     timesPromise: client.getTimes(key, d.calendarId),
                 }))
@@ -57,8 +58,8 @@ const Renderer = {};
                 timesList.className = 'times_list';
                 o.timesPromise.then(avlbleTimes => avlbleTimes.forEach(t => {
                     const timeItem = document.createElement('li');
-                    timeItem.id = getTimeId(o.date.calendarId, t.timeId);
-                    timeItem.onclick = () => handleSelect(o.date.calendarId, t.timeId);
+                    timeItem.id = getTimeId(o.stationId, o.date.calendarDate, t.timeId);
+                    timeItem.onclick = () => handleSelect(o.stationId, o.date, t.timeId);
                     timeItem.appendChild(document.createTextNode(t.humanReadableTime));
                     timesList.appendChild(timeItem);
                 }));
@@ -112,6 +113,7 @@ const Renderer = {};
     function renderSubmit(handleSubmit) {
         const submitButtonId = 'appointment_submission';
         if (Boolean(document.getElementById(submitButtonId))) {
+            document.getElementById(submitButtonId).onclick = handleSubmit;
             return;
         }
 
@@ -131,8 +133,8 @@ const Renderer = {};
         return `li_${stationId}`;
     }
 
-    function getTimeId(calendarId, timeId) {
-        return `t_${calendarId}_${timeId}`;
+    function getTimeId(stationId, calendarDate, timeId) {
+        return `t_${stationId}_${calendarDate}_${timeId}`;
     }
 
     Renderer.renderStations = renderStations;

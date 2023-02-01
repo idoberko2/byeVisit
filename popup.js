@@ -98,18 +98,27 @@ function gettingStartedFlow() {
 }
 
 function createSelectHandler(state) {
-    return function selectHandler(calendarId, timeId) {
+    return function selectHandler(stationId, date, timeId) {
         if (state.selected) {
-            document.getElementById(Renderer.getTimeId(state.selected.calendarId, state.selected.timeId)).classList.remove('selected');
+            document.getElementById(Renderer.getTimeId(state.selected.stationId, state.selected.date.calendarDate, state.selected.timeId)).classList.remove('selected');
         }
-        state.selected = { calendarId, timeId };
-        document.getElementById(Renderer.getTimeId(calendarId, timeId)).classList.add('selected');
-        Renderer.renderSubmit(createSetAppointmentHandler(calendarId, timeId));
+        state.selected = { stationId, date, timeId };
+        document.getElementById(Renderer.getTimeId(stationId, date.calendarDate, timeId)).classList.add('selected');
+        Renderer.renderSubmit(createSetAppointmentHandler(state, stationId, date.calendarDate, timeId));
     }
 }
 
-function createSetAppointmentHandler(calendarId, timeId) {
+function createSetAppointmentHandler(state, stationId, calendarDate, timeId) {
     return function setAppointmentHandler() {
-        console.info(calendarId, timeId);
+        console.debug(stationId, calendarDate, timeId);
+        const client = createClient(state.credentials);
+        try {
+            client.setAppointment('TODO', stationId, calendarDate, timeId);
+            console.debug('success');
+        } catch (e) {
+            if (e == ErrSetAppointmentFailed) {
+                console.error(e);
+            }
+        }
     }
 }
