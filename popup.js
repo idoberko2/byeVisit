@@ -104,5 +104,12 @@ function createSelectHandler(state) {
         }
         state.selected = { calendarId, timeId };
         document.getElementById(Renderer.getTimeId(calendarId, timeId)).classList.add('selected');
+        Renderer.renderSubmit(createSetAppointmentHandler(calendarId, timeId));
+    }
+}
+
+function createSetAppointmentHandler(calendarId, timeId) {
+    return function setAppointmentHandler() {
+        console.info(calendarId, timeId);
     }
 }

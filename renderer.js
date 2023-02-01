@@ -109,6 +109,20 @@ const Renderer = {};
         });
     }
 
+    function renderSubmit(handleSubmit) {
+        const submitButtonId = 'appointment_submission';
+        if (Boolean(document.getElementById(submitButtonId))) {
+            return;
+        }
+
+        const app = document.getElementById('app');
+        const submitButton = document.createElement('button');
+        submitButton.id = submitButtonId;
+        submitButton.appendChild(document.createTextNode('קביעת תור'));
+        submitButton.onclick = handleSubmit;
+        app.appendChild(submitButton);
+    }
+
     function getCheckboxId(stationId) {
         return `chkbx_${stationId}`;
     }
@@ -123,6 +137,7 @@ const Renderer = {};
 
     Renderer.renderStations = renderStations;
     Renderer.renderOpenings = renderOpenings;
+    Renderer.renderSubmit = renderSubmit;
     Renderer.getListItemId = getListItemId;
     Renderer.getTimeId = getTimeId;
 })();
