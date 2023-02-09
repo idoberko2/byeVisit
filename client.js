@@ -5,7 +5,13 @@
  */
 
 const ErrUnauthorized = new Error('unauthorized');
+const ErrPrepareVisitFailed = new Error('failed to prepare visit');
 const ErrSetAppointmentFailed = new Error('failed to set appointment');
+
+const BASE_HEADERS = {
+    'application-name': 'myVisit.com v3.5',
+    accept: 'application/json, text/plain, */*',
+}
 
 function createClient({ appApiKey }) {
     /**
@@ -14,7 +20,7 @@ function createClient({ appApiKey }) {
      */
     async function getStations() {
         const url = 'https://central.myvisit.com/CentralAPI/LocationSearch?currentPage=1&isFavorite=false&orderBy=Distance&organizationId=56&position={"lat":"32.0889","lng":"34.858","accuracy":1440}&resultsInPage=100&serviceTypeId=156&src=mvws';
-        const response = await fetchUrl(appApiKey, url);
+        const response = await sendGet(appApiKey, url);
 
         return response.Results.map(r => ({ id: r.ServiceId, name: r.City }));
     }
@@ -28,7 +34,7 @@ function createClient({ appApiKey }) {
         ].join('-')
 
         const url = `https://central.myvisit.com/CentralAPI/SearchAvailableDates?maxResults=31&serviceId=${stationId}&startDate=${todayFmt}`;
-        const response = await fetchUrl(appApiKey, url);
+        const response = await sendGet(appApiKey, url);
 
         if (!response.Results) {
             return [];
@@ -39,7 +45,7 @@ function createClient({ appApiKey }) {
 
     async function getTimes(stationId, dateId) {
         const url = `https://central.myvisit.com/CentralAPI/SearchAvailableSlots?ServiceId=${stationId}&CalendarId=${dateId}`;
-        const response = await fetchUrl(appApiKey, url);
+        const response = await sendGet(appApiKey, url);
 
         if (!response.Results) {
             return [];
@@ -48,13 +54,50 @@ function createClient({ appApiKey }) {
         return response.Results.map(r => ({ timeId: r.Time, humanReadableTime: parseHumanReadableTime(r.Time) }));
     }
 
+    async function prepareVisit(id, phone) {
+        const prepare = await sendPost(appApiKey, 'https://central.myvisit.com/CentralAPI/Organization/56/PrepareVisit');
+        if (!prepare.Success) {
+            console.info('failed initial preparation');
+            throw ErrPrepareVisitFailed;
+        }
+
+        const visitId = prepare.Data.PreparedVisitId;
+        const visitToken = prepare.Data.PreparedVisitToken;
+
+        const idAnswer = await sendPost(appApiKey, `https://central.myvisit.com/CentralAPI/PreparedVisit/${visitToken}/Answer`, {
+            PreparedVisitToken: visitToken,
+            QuestionnaireItemId: 1674,
+            QuestionId: 113,
+            AnswerIds: null,
+            AnswerText: id,
+        });
+        if (!idAnswer.Success) {
+            console.info('failed answering for id');
+            throw ErrPrepareVisitFailed;
+        }
+
+        const phoneAnswer = await sendPost(appApiKey, `https://central.myvisit.com/CentralAPI/PreparedVisit/${visitToken}/Answer`, {
+            PreparedVisitToken: visitToken,
+            QuestionnaireItemId: 1675,
+            QuestionId: 114,
+            AnswerIds: null,
+            AnswerText: phone,
+        });
+        if (!phoneAnswer.Success) {
+            console.info('failed answering for phone');
+            throw ErrPrepareVisitFailed;
+        }
+
+        return visitId;
+    }
+
     async function setAppointment(visitId, stationId, date, timeId) {
         const url = `https://central.myvisit.com/CentralAPI/AppointmentSet?ServiceId=${stationId}` + 
         `&appointmentDate=${date}` +
         `&appointmentTime=${timeId}` +
         `&preparedVisitId=${visitId}` +
         `&position={"lat":"32.0889","lng":"34.858","accuracy":1440}`;
-        const response = await fetchUrl(appApiKey, url);
+        const response = await sendGet(appApiKey, url);
 
         if (!response.Success) {
             throw ErrSetAppointmentFailed;
@@ -69,19 +112,37 @@ function createClient({ appApiKey }) {
         getStations,
         getDates,
         getTimes,
+        prepareVisit,
         setAppointment,
     };
 }
 
-async function fetchUrl(appApiKey, url) {
+async function sendGet(appApiKey, url) {
     const response = await fetch(url, {
         mode: 'cors',
         headers: {
-            'application-name': 'myVisit.com v3.5',
+            ...BASE_HEADERS,
             'application-api-key': appApiKey,
-            accept: 'application/json, text/plain, */*',
         }
     });
+    return handleResponse(response);
+}
+
+async function sendPost(appApiKey, url, body) {
+    const response = await fetch(url, {
+        mode: 'cors',
+        headers: {
+            ...BASE_HEADERS,
+            'application-api-key': appApiKey,
+            'content-type': 'application/json',
+        },
+        method: 'POST',
+        body: body && JSON.stringify(body),
+    });
+    return handleResponse(response);
+}
+
+async function handleResponse(response) {
     if (response.status == 401) {
         throw ErrUnauthorized;
     }

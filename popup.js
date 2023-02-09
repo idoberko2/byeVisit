@@ -123,16 +123,20 @@ function createSelectHandler(state) {
 }
 
 function createSetAppointmentHandler(state, stationId, calendarDate, timeId) {
-    return function setAppointmentHandler() {
+    return async function setAppointmentHandler() {
         console.debug(stationId, calendarDate, timeId);
+        if (!Boolean(state.id) || !Boolean(state.phone)) {
+            console.error('cannot set appointment when id or phone are missing!');
+            return;
+        }
+
         const client = createClient(state.credentials);
         try {
-            client.setAppointment('TODO', stationId, calendarDate, timeId);
+            const visitId = await client.prepareVisit(state.id, state.phone);
+            await client.setAppointment(visitId, stationId, calendarDate, timeId);
             console.debug('success');
         } catch (e) {
-            if (e == ErrSetAppointmentFailed) {
-                console.error(e);
-            }
+            console.error(e);
         }
     }
 }
