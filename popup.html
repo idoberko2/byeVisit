@@ -10,12 +10,17 @@
     <body>
         <main id="app">
             <section id="station_loader"</section>
-            <section id="station_selection_cntnr" style="display: none">
-                <form id="station_selection" style="display: none">
-                    <ul id="station_list"></ul>
+            <section id="settings_container" style="display: none">
+                <form id="settings_form" style="display: none">
+                    <section id="stations_container"><ul id="station_list"></ul></section>
+                    <section id="credentials">
+                        <header>לא חייבים למלא, רק אם רוצים שאקבע לכם את התור:</header>
+                        <section class="cred_input"><label for="id_num">ת.ז.</label><input type="text" id="id_num" /></section>
+                        <section class="cred_input"><label for="phone_num">טלפון</label><input type="text" id="phone_num" /></section>
+                    </section>
                     <input type="submit" value="שמירה" />
                 </form>
-                <button id="edit_station_selection">עריכת לשכות</button>
+                <button id="edit_station_selection">הגדרות</button>
             </section>
             <div id="appointment_openings" style="display: none;">
                 <main><ul id="openings_list"></ul></main>

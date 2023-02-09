@@ -38,7 +38,7 @@ const Renderer = {};
         }
     
         openings.removeChild(openingsHeader);
-        document.getElementById('station_selection_cntnr').style.display = 'block';
+        document.getElementById('settings_container').style.display = 'block';
     }
     
     function renderOpening(stationOpenings, handleSelect) {
@@ -82,7 +82,7 @@ const Renderer = {};
     }
     
     async function renderStations(state, handleSubmit) {
-        const form = document.getElementById('station_selection');
+        const form = document.getElementById('settings_form');
         form.onsubmit = handleSubmit(state, form);
         const list = document.getElementById('station_list');
         state.allStations.forEach(s => {
@@ -108,6 +108,14 @@ const Renderer = {};
             item.appendChild(input);
             list.appendChild(item);
         });
+
+        const { id, phone } = state;
+        if (Boolean(id)) {
+            document.getElementById('id_num').value = id;
+        }
+        if (Boolean(phone)) {
+            document.getElementById('phone_num').value = phone;
+        }
     }
 
     function renderSubmit(handleSubmit) {

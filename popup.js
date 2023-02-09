@@ -11,7 +11,7 @@ const NUMBER_OF_MONTHS = 3;
     );
 
     await loadCredentials(state);
-    await loadStations(state);
+    await loadSettings(state);
     console.debug({ state });
     await Renderer.renderStations(state, selectedStationsPersistor);
 
@@ -23,7 +23,7 @@ const NUMBER_OF_MONTHS = 3;
     }
 
     document.getElementById('edit_station_selection').onclick = () => {
-        const form = document.getElementById('station_selection');
+        const form = document.getElementById('settings_form');
         if (form.style.display == 'block') {
             form.style.display = 'none';
         } else {
@@ -36,7 +36,7 @@ function loadCredentials(state) {
     return loadFromStorage(state, 'credentials');
 }
 
-async function loadStations(state) {
+async function loadSettings(state) {
     await loadFromStorage(state, 'allStations');
     if (!state.allStations || state.allStations.length == 0) {
         const loadTxt = document.createTextNode('טוען לשכות...');
@@ -53,6 +53,8 @@ async function loadStations(state) {
     }
 
     await loadFromStorage(state, 'selectedStations');
+    await loadFromStorage(state, 'id');
+    await loadFromStorage(state, 'phone');
 }
 
 function loadFromStorage(state, property) {
@@ -81,6 +83,18 @@ function selectedStationsPersistor(state, form) {
             state.selectedStations = selectedValues;
         });
 
+        const id = document.getElementById('id_num').value, phone = document.getElementById('phone_num').value;
+        if (Boolean(id)) {
+            chrome.storage.local.set({ id }, () => {
+                state.id = id;
+            });
+        }
+        if (Boolean(phone)) {
+            chrome.storage.local.set({ phone }, () => {
+                state.phone = phone;
+            });
+        }
+
         document.getElementById('edit_station_selection').style.display = 'block';
 
         return false;
@@ -92,8 +106,8 @@ function isInitialized(state) {
 }
 
 function gettingStartedFlow() {
-    document.getElementById('station_selection_cntnr').style.display = 'block';
-    document.getElementById('station_selection').style.display = 'block';
+    document.getElementById('settings_container').style.display = 'block';
+    document.getElementById('settings_form').style.display = 'block';
     document.getElementById('edit_station_selection').style.display = 'none';
 }
 

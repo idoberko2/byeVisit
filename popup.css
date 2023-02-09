@@ -15,6 +15,20 @@ ul {
     padding: 0;
 }
 
+#credentials {
+    display: flex;
+    flex-direction: column;
+}
+
+#credentials section {
+    margin: 5px 0;
+}
+
+#credentials .cred_input {
+    display: flex;
+    justify-content: space-between;
+}
+
 ul#openings_list li {
     border: 1px solid #aaa;
     border-radius: 5px;
