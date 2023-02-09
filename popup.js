@@ -69,11 +69,11 @@ function selectedStationsPersistor(state, form) {
     return async function persistSelectedStations(e) {
         e.preventDefault();
         const selected = document.querySelectorAll('ul#station_list input[type="checkbox"]:checked');
-        const selectedValues = [...selected].reduce((prev, curr) => {
+        const selectedValues = Array.from(selected).reduce((prev, curr) => {
             const stationId = curr.value;
             const label = document.querySelector(`#${Renderer.getListItemId(stationId)} label`)
             return ({ ...prev, [stationId]: label.innerText });
-        });
+        }, {});
         console.debug({ selectedValues });
         form.style.display = 'none';
 
