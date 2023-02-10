@@ -12,7 +12,7 @@ const NUMBER_OF_MONTHS = 3;
 
     await loadCredentials(state);
     await loadSettings(state);
-    console.debug({ state });
+    await setScheduledAptToState(state);
     await Renderer.renderStations(state, selectedStationsPersistor);
 
     if (!isInitialized(state)) {
@@ -55,6 +55,12 @@ async function loadSettings(state) {
     await loadFromStorage(state, 'selectedStations');
     await loadFromStorage(state, 'id');
     await loadFromStorage(state, 'phone');
+}
+
+async function setScheduledAptToState(state) {
+    const scheduledApt = await createClient(state.credentials).getScheduledAppointment();
+    console.debug({ scheduledApt });
+    state.scheduledApt = scheduledApt;
 }
 
 function loadFromStorage(state, property) {

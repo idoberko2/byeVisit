@@ -4,6 +4,13 @@
  * @property {string} name - The station name
  */
 
+/**
+ * @typedef {Object} ScheduledAppointment
+ * @property {string} visitId - The visit id
+ * @property {string} stationName - The station name
+ * @property {Date} date - The appointment date
+ */
+
 const ErrUnauthorized = new Error('unauthorized');
 const ErrPrepareVisitFailed = new Error('failed to prepare visit');
 const ErrSetAppointmentFailed = new Error('failed to set appointment');
@@ -25,13 +32,36 @@ function createClient({ appApiKey }) {
         return response.Results.map(r => ({ id: r.ServiceId, name: r.City }));
     }
 
+    /**
+     * 
+     * @returns {ScheduledAppointment?}
+     */
+    async function getScheduledAppointment() {
+        const todayFmt = getFormattedToday();
+        const url = `https://central.myvisit.com/CentralAPI/User/Visits/?$orderby=ReferenceDate desc&$filter=ReferenceDate ge ${todayFmt}`;
+        const response = await sendGet(appApiKey, url);
+
+        if (!response.Success) {
+            return [];
+        }
+
+        const scheduledApt = response.Data
+            .filter(a => a.OrganizationId == 56)
+            .find(a => a.CancellationAllowed);
+
+        if (!Boolean(scheduledApt)) {
+            return null;
+        }
+
+        return {
+            visitId: scheduledApt.VisitId,
+            stationName: scheduledApt.LocationName,
+            date: new Date(Date.parse(scheduledApt.ReferenceDate)),
+        }
+    }
+
     async function getDates(stationId) {
-        const today = new Date();
-        const todayFmt = [
-            today.getFullYear(),
-            String(today.getMonth() + 1).padStart(2, '0'),
-            String(today.getDate()).padStart(2, '0'),
-        ].join('-')
+        const todayFmt = getFormattedToday();
 
         const url = `https://central.myvisit.com/CentralAPI/SearchAvailableDates?maxResults=31&serviceId=${stationId}&startDate=${todayFmt}`;
         const response = await sendGet(appApiKey, url);
@@ -92,11 +122,11 @@ function createClient({ appApiKey }) {
     }
 
     async function setAppointment(visitId, stationId, date, timeId) {
-        const url = `https://central.myvisit.com/CentralAPI/AppointmentSet?ServiceId=${stationId}` + 
-        `&appointmentDate=${date}` +
-        `&appointmentTime=${timeId}` +
-        `&preparedVisitId=${visitId}` +
-        `&position={"lat":"32.0889","lng":"34.858","accuracy":1440}`;
+        const url = `https://central.myvisit.com/CentralAPI/AppointmentSet?ServiceId=${stationId}` +
+            `&appointmentDate=${date}` +
+            `&appointmentTime=${timeId}` +
+            `&preparedVisitId=${visitId}` +
+            `&position={"lat":"32.0889","lng":"34.858","accuracy":1440}`;
         const response = await sendGet(appApiKey, url);
 
         if (!response.Success) {
@@ -110,6 +140,7 @@ function createClient({ appApiKey }) {
 
     return {
         getStations,
+        getScheduledAppointment,
         getDates,
         getTimes,
         prepareVisit,
@@ -165,4 +196,13 @@ function parseHumanReadableTime(time) {
     const hours = (time - minutes) / 60;
 
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+}
+
+function getFormattedToday() {
+    const today = new Date();
+    return [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, '0'),
+        String(today.getDate()).padStart(2, '0'),
+    ].join('-');
 }
