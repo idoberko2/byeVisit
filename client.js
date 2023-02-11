@@ -134,6 +134,18 @@ function createClient({ appApiKey }, handleUnauthorized) {
         }
     }
 
+    async function cancelAppointment(visitId) {
+        const url = `https://central.myvisit.com/CentralAPI/AppointmentCancel?` +
+            `position={"lat":"31.5166","lng":"34.9378","accuracy":1440}` +
+            `&url=/AppointmentCancel&` +
+            `visitId=${visitId}`
+        const response = await sendGet(appApiKey, url);
+
+        if (!response.Success) {
+            throw ErrSetAppointmentFailed;
+        }
+    }
+
     if (!appApiKey) {
         throw new Error('missing api key');
     }
@@ -189,6 +201,7 @@ function createClient({ appApiKey }, handleUnauthorized) {
         getTimes,
         prepareVisit,
         setAppointment,
+        cancelAppointment,
     };
 }
 
