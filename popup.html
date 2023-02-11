@@ -22,9 +22,9 @@
                 </form>
                 <button id="edit_station_selection">הגדרות</button>
             </section>
-            <div id="appointment_openings" style="display: none;">
+            <section id="appointment_openings" style="display: none;">
                 <main><ul id="openings_list"></ul></main>
-            </div>
+            </section>
             <script src="client.js"></script>
             <script src="renderer.js"></script>
             <script src="popup.js"></script>
@@ -32,5 +32,9 @@
         <main id="unauthorized" style="display: none">
             נראה שהתנתקת ממערכת myVisit. יש לבצע התחברות ולפתוח מחדש את התוסף.
         </main>
+        <footer id="submission_container" style="display: none;">
+            <header id="scheduled_warning" class="callout callout-warning"></header>
+            <section id="button_container"><button id="appointment_submission">קביעת תור</button></section>
+        </footer>
     </body>
 </html>

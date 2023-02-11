@@ -143,7 +143,7 @@ function createSelectHandler(state, client) {
         }
         state.selected = { stationId, date, timeId };
         document.getElementById(Renderer.getTimeId(stationId, date.calendarDate, timeId)).classList.add('selected');
-        Renderer.renderSubmit(createSetAppointmentHandler(state, client, stationId, date.calendarDate, timeId));
+        Renderer.renderSubmit(createSetAppointmentHandler(state, client, stationId, date.calendarDate, timeId), state.scheduledApt);
     }
 }
 
