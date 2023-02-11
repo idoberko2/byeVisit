@@ -157,6 +157,7 @@ function createSetAppointmentHandler(state, client, stationId, calendarDate, tim
 
         try {
             const visitId = await client.prepareVisit(state.id, state.phone);
+            await client.cancelAppointment(state.scheduledApt.visitId);
             await client.setAppointment(visitId, stationId, calendarDate, timeId);
             console.debug('success');
         } catch (e) {
