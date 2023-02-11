@@ -122,6 +122,11 @@ const Renderer = {};
         app.appendChild(submitButton);
     }
 
+    function renderUnauthorized() {
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('unauthorized').style.display = 'block';
+    }
+
     function getCheckboxId(stationId) {
         return `chkbx_${stationId}`;
     }
@@ -137,6 +142,7 @@ const Renderer = {};
     Renderer.renderStations = renderStations;
     Renderer.renderOpenings = renderOpenings;
     Renderer.renderSubmit = renderSubmit;
+    Renderer.renderUnauthorized = renderUnauthorized;
     Renderer.getListItemId = getListItemId;
     Renderer.getTimeId = getTimeId;
 })();

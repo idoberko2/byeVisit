@@ -11,8 +11,9 @@ const NUMBER_OF_MONTHS = 3;
     );
 
     await loadCredentials(state);
-    await loadSettings(state);
-    await setScheduledAptToState(state);
+    const client = createClient(state.credentials, Renderer.renderUnauthorized);
+    await loadSettings(state, client);
+    await setScheduledAptToState(state, client);
     await Renderer.renderStations(state, selectedStationsPersistor);
 
     if (!isInitialized(state)) {
@@ -21,9 +22,9 @@ const NUMBER_OF_MONTHS = 3;
     } else {
         await Renderer.renderOpenings(
             state,
-            generateOpeningDatesGetter(state),
-            generateOpeningTimesGetter(state),
-            createSelectHandler(state),
+            generateOpeningDatesGetter(client),
+            generateOpeningTimesGetter(client),
+            createSelectHandler(state, client),
         );
     }
 
@@ -41,13 +42,12 @@ function loadCredentials(state) {
     return loadFromStorage(state, 'credentials');
 }
 
-async function loadSettings(state) {
+async function loadSettings(state, client) {
     await loadFromStorage(state, 'allStations');
     if (!state.allStations || state.allStations.length == 0) {
         const loadTxt = document.createTextNode('טוען לשכות...');
         const stationLoader = document.getElementById('station_loader');
         stationLoader.appendChild(loadTxt);
-        const client = createClient(state.credentials);
         const allStations = await client.getStations();
 
         chrome.storage.local.set({ allStations }, () => {
@@ -62,31 +62,21 @@ async function loadSettings(state) {
     await loadFromStorage(state, 'phone');
 }
 
-async function setScheduledAptToState(state) {
-    const scheduledApt = await createClient(state.credentials).getScheduledAppointment();
+async function setScheduledAptToState(state, client) {
+    const scheduledApt = await client.getScheduledAppointment();
     console.debug({ scheduledApt });
     state.scheduledApt = scheduledApt;
 }
 
-function generateOpeningDatesGetter(state) {
-    const client = createClient(state.credentials);
+function generateOpeningDatesGetter(client) {
     return async function getOpeningDates(stationId) {
-        try {
-            const dates = await client.getDates(stationId);
-            console.debug(stationId, { dates });
-            return dates;
-        } catch (e) {
-            if (e == ErrUnauthorized) {
-                document.getElementById('app').style.display = 'none';
-                document.getElementById('unauthorized').style.display = 'block';
-                return [];
-            }
-        }
+        const dates = await client.getDates(stationId);
+        console.debug(stationId, { dates });
+        return dates;
     }
 }
 
-function generateOpeningTimesGetter(state) {
-    const client = createClient(state.credentials);
+function generateOpeningTimesGetter(client) {
     return function getOpeningTimes(stationId, calendarId) {
         return client.getTimes(stationId, calendarId);
     }
@@ -146,18 +136,18 @@ function gettingStartedFlow() {
     document.getElementById('edit_station_selection').style.display = 'none';
 }
 
-function createSelectHandler(state) {
+function createSelectHandler(state, client) {
     return function selectHandler(stationId, date, timeId) {
         if (state.selected) {
             document.getElementById(Renderer.getTimeId(state.selected.stationId, state.selected.date.calendarDate, state.selected.timeId)).classList.remove('selected');
         }
         state.selected = { stationId, date, timeId };
         document.getElementById(Renderer.getTimeId(stationId, date.calendarDate, timeId)).classList.add('selected');
-        Renderer.renderSubmit(createSetAppointmentHandler(state, stationId, date.calendarDate, timeId));
+        Renderer.renderSubmit(createSetAppointmentHandler(state, client, stationId, date.calendarDate, timeId));
     }
 }
 
-function createSetAppointmentHandler(state, stationId, calendarDate, timeId) {
+function createSetAppointmentHandler(state, client, stationId, calendarDate, timeId) {
     return async function setAppointmentHandler() {
         console.debug(stationId, calendarDate, timeId);
         if (!Boolean(state.id) || !Boolean(state.phone)) {
@@ -165,7 +155,6 @@ function createSetAppointmentHandler(state, stationId, calendarDate, timeId) {
             return;
         }
 
-        const client = createClient(state.credentials);
         try {
             const visitId = await client.prepareVisit(state.id, state.phone);
             await client.setAppointment(visitId, stationId, calendarDate, timeId);
