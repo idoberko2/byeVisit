@@ -1,26 +1,15 @@
 const Renderer = {};
 
 (function initRenderer() {
-    async function renderOpenings(state, handleSelect) {
+    async function renderOpenings(state, getOpeningDates, getOpeningTimes, handleSelect) {
         const openings = document.getElementById('appointment_openings');
         openings.style.display = 'block';
         const openingsHeader = document.createElement('header');
         openingsHeader.appendChild(document.createTextNode(`מחפש תורים ב${NUMBER_OF_MONTHS} החודשים הקרובים...`));
         openings.insertBefore(openingsHeader, document.querySelector('#appointment_openings main'));
-        const client = createClient(state.credentials);
         console.log(typeof state.selectedStations);
         for (const [key, value] of Object.entries(state.selectedStations)) {
-            let dates;
-            try {
-                dates = await client.getDates(key);
-            } catch (e) {
-                if (e == ErrUnauthorized) {
-                    document.getElementById('app').style.display = 'none';
-                    document.getElementById('unauthorized').style.display = 'block';
-                    return;
-                }
-            }
-            console.debug(value, { dates });
+            const dates = await getOpeningDates(key);
             let filteredDates = [];
             if (dates && Array.isArray(dates)) {
                 const xMonthsFromNow = new Date((new Date()).setMonth((new Date()).getMonth() + NUMBER_OF_MONTHS));
@@ -31,7 +20,7 @@ const Renderer = {};
                 openings: filteredDates.map(d => ({
                     stationId: key,
                     date: d,
-                    timesPromise: client.getTimes(key, d.calendarId),
+                    timesPromise: getOpeningTimes(key, d.calendarId),
                 }))
             };
             renderOpening(stationOpenings, handleSelect);

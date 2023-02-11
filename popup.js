@@ -19,7 +19,12 @@ const NUMBER_OF_MONTHS = 3;
         console.debug('not initialized', state);
         gettingStartedFlow();
     } else {
-        await Renderer.renderOpenings(state, createSelectHandler(state));
+        await Renderer.renderOpenings(
+            state,
+            generateOpeningDatesGetter(state),
+            generateOpeningTimesGetter(state),
+            createSelectHandler(state),
+        );
     }
 
     document.getElementById('edit_station_selection').onclick = () => {
@@ -61,6 +66,30 @@ async function setScheduledAptToState(state) {
     const scheduledApt = await createClient(state.credentials).getScheduledAppointment();
     console.debug({ scheduledApt });
     state.scheduledApt = scheduledApt;
+}
+
+function generateOpeningDatesGetter(state) {
+    const client = createClient(state.credentials);
+    return async function getOpeningDates(stationId) {
+        try {
+            const dates = await client.getDates(stationId);
+            console.debug(stationId, { dates });
+            return dates;
+        } catch (e) {
+            if (e == ErrUnauthorized) {
+                document.getElementById('app').style.display = 'none';
+                document.getElementById('unauthorized').style.display = 'block';
+                return [];
+            }
+        }
+    }
+}
+
+function generateOpeningTimesGetter(state) {
+    const client = createClient(state.credentials);
+    return function getOpeningTimes(stationId, calendarId) {
+        return client.getTimes(stationId, calendarId);
+    }
 }
 
 function loadFromStorage(state, property) {
