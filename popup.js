@@ -109,16 +109,12 @@ function selectedStationsPersistor(state, form) {
         });
 
         const id = document.getElementById('id_num').value, phone = document.getElementById('phone_num').value;
-        if (Boolean(id)) {
-            chrome.storage.local.set({ id }, () => {
-                state.id = id;
-            });
-        }
-        if (Boolean(phone)) {
-            chrome.storage.local.set({ phone }, () => {
-                state.phone = phone;
-            });
-        }
+        chrome.storage.local.set({ id }, () => {
+            state.id = id;
+        });
+        chrome.storage.local.set({ phone }, () => {
+            state.phone = phone;
+        });
 
         document.getElementById('edit_station_selection').style.display = 'block';
 
@@ -143,14 +139,18 @@ function createSelectHandler(state, client) {
         }
         state.selected = { stationId, date, timeId };
         document.getElementById(Renderer.getTimeId(stationId, date.calendarDate, timeId)).classList.add('selected');
-        Renderer.renderSubmit(createSetAppointmentHandler(state, client, stationId, date.calendarDate, timeId), state.scheduledApt);
+        Renderer.renderSubmit(
+            createSetAppointmentHandler(state, client, stationId, date.calendarDate, timeId),
+            !canSetAppointment(state),
+            state.scheduledApt,
+        );
     }
 }
 
 function createSetAppointmentHandler(state, client, stationId, calendarDate, timeId) {
     return async function setAppointmentHandler() {
         console.debug(stationId, calendarDate, timeId);
-        if (!Boolean(state.id) || !Boolean(state.phone)) {
+        if (!canSetAppointment(state)) {
             console.error('cannot set appointment when id or phone are missing!');
             return;
         }
@@ -163,4 +163,8 @@ function createSetAppointmentHandler(state, client, stationId, calendarDate, tim
             console.error(e);
         }
     }
+}
+
+function canSetAppointment(state) {
+    return Boolean(state.id) && Boolean(state.phone);
 }
