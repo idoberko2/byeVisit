@@ -1,40 +1,48 @@
 <html>
-    <meta charset="UTF-8">
-    <head>
-        <title>Passport</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="popup.css" />
-    </head>
-    <body>
-        <main id="app">
-            <section id="station_loader"</section>
-            <section id="settings_container" style="display: none">
-                <form id="settings_form" style="display: none">
-                    <section id="stations_container"><ul id="station_list"></ul></section>
-                    <section id="credentials">
-                        <header>לא חייבים למלא, רק אם רוצים שאקבע לכם את התור:</header>
-                        <section class="cred_input"><label for="id_num">ת.ז.</label><input type="text" id="id_num" /></section>
-                        <section class="cred_input"><label for="phone_num">טלפון</label><input type="text" id="phone_num" /></section>
-                    </section>
-                    <input type="submit" value="שמירה" />
-                </form>
-                <button id="edit_station_selection">הגדרות</button>
+<meta charset="UTF-8">
+
+<head>
+    <title>Passport</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="popup.css" />
+</head>
+
+<body>
+    <main id="app">
+        <header id="settings_container" style="display: none"></header>
+        <section id="station_loader"></section>
+        <form id="settings_form" style="display: none">
+            <section id="stations_container">
+                <ul id="station_list"></ul>
             </section>
-            <section id="appointment_openings" style="display: none;">
-                <main><ul id="openings_list"></ul></main>
+            <section id="credentials">
+                <header>לא חייבים למלא, רק אם רוצים שאקבע לכם את התור:</header>
+                <section class="cred_input"><label for="id_num">ת.ז.</label><input type="text" id="id_num" /></section>
+                <section class="cred_input"><label for="phone_num">טלפון</label><input type="text" id="phone_num" />
+                </section>
             </section>
-            <script src="client.js"></script>
-            <script src="renderer.js"></script>
-            <script src="popup.js"></script>
-        </main>
-        <main id="unauthorized" style="display: none">
-            נראה שהתנתקת ממערכת myVisit. יש לבצע התחברות ולפתוח מחדש את התוסף.
-        </main>
-        <footer id="submission_container" style="display: none;">
-            <header id="submission_warning" class="callout callout-warning" style="display: none;"></header>
-            <section id="button_container"><button id="appointment_submission">קביעת תור</button></section>
-        </footer>
-    </body>
+            <input type="submit" value="שמירה" />
+        </form>
+        <button id="edit_station_selection">הגדרות</button>
+        </section>
+        <section id="appointment_openings" style="display: none;">
+            <main>
+                <ul id="openings_list"></ul>
+            </main>
+        </section>
+        <script src="client.js"></script>
+        <script src="renderer.js"></script>
+        <script src="popup.js"></script>
+    </main>
+    <main id="unauthorized" style="display: none">
+        נראה שהתנתקת ממערכת myVisit. יש לבצע התחברות ולפתוח מחדש את התוסף.
+    </main>
+    <footer id="submission_container" style="display: none;">
+        <header id="submission_warning" class="callout callout-warning" style="display: none;"></header>
+        <section id="button_container"><button id="appointment_submission">קביעת תור</button></section>
+    </footer>
+</body>
+
 </html>
