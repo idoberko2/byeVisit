@@ -107,21 +107,36 @@ const Renderer = {};
         }
     }
 
-    function renderSubmit(handleSubmit, scheduledApt) {
+    function renderSubmit(handleSubmit, isDisabled, scheduledApt) {
+        if (isDisabled) {
+            document.getElementById('appointment_submission').disabled = true;
+            displaySubmissionWarning('כדי שאוכל לקבוע לך תור, יש למלא פרטים אישיים בהגדרות!');
+            displaySubmission();
+            return;
+        } 
+
         document.getElementById('appointment_submission').onclick = handleSubmit;
 
-        console.log('render submit scheduled apt', scheduledApt);
         if (Boolean(scheduledApt)) {
-            const scheduledWarning = document.getElementById('scheduled_warning');
-            scheduledWarning.textContent = `לתשומת לבך! קיים במערכת תור ל- ${scheduledApt.stationName}`+
-                ` בתאריך ${scheduledApt.date.toLocaleDateString('he-IL')} בשעה ${scheduledApt.date.toLocaleTimeString('he-IL')}. `+
+            displaySubmissionWarning(`לתשומת לבך! קיים במערכת תור ל- ${scheduledApt.stationName}` +
+                ` בתאריך ${scheduledApt.date.toLocaleDateString('he-IL')} בשעה ${scheduledApt.date.toLocaleTimeString('he-IL')}. ` +
                 'ניאלץ לבטל אותו לפני קביעת התור. ' +
-                'במידה והפעולה תיכשל אתם עלולים להישאר ללא תור!';
+                'במידה והפעולה תיכשל אתם עלולים להישאר ללא תור!');
         }
 
+        displaySubmission();
+    }
+
+    function displaySubmission() {
         const submissionContainer = document.getElementById('submission_container');
         submissionContainer.style.display = 'block';
         document.getElementById('app').style.paddingBottom = submissionContainer.offsetHeight + 'px';
+    }
+
+    function displaySubmissionWarning(msg) {
+        const scheduledWarning = document.getElementById('submission_warning');
+        scheduledWarning.textContent = msg;
+        scheduledWarning.style.display = 'block';
     }
 
     function renderUnauthorized() {
