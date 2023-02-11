@@ -1,9 +1,10 @@
 body {
-    width: 300px;
+    width: 361px;
     height: 400px;
     direction: rtl;
     font-family: 'Noto Sans Hebrew', sans-serif;
     font-size: 14pt ;
+    margin: 0;
 }
 
 button, input {
@@ -13,6 +14,11 @@ button, input {
 ul {
     list-style-type: none;
     padding: 0;
+}
+
+body > main {
+    margin: 8px 8px 0;
+    padding-bottom: 8px;
 }
 
 #credentials {
@@ -29,39 +35,77 @@ ul {
     justify-content: space-between;
 }
 
-ul#openings_list li {
+ul#openings_list {
+    margin: 8px 0;
+}
+
+ul#openings_list > li {
     border: 1px solid #aaa;
     border-radius: 5px;
     padding: 10px;
+}
+
+ul#openings_list > li:not(:last-child) {
     margin-bottom: 10px;
 }
 
-ul#openings_list li ul.dates_list li {
+ul.dates_list > li {
     padding: 10px 0 0;
     border: 0;
 }
 
-ul#openings_list li ul.dates_list li ul.times_list {
+ul.dates_list > li > header {
+    margin-right: 2px;
+}
+
+ul.times_list {
     display: flex;
     flex-flow: wrap;
     justify-content: flex-start;
 }
 
-ul#openings_list li ul.dates_list li ul.times_list li {
+ul.times_list li {
     padding: 3px;
     border: 1px solid #aaa;
     border-radius: 5px;
     font-size: 10pt;
-    margin-left: 4px;
+    margin: 3px 2px;
     cursor: pointer;
 }
 
-ul#openings_list li ul.dates_list li ul.times_list li:hover {
+ul.times_list li:hover {
     background-color: #ffbcbc;
     border-color: #5a4848;
 }
 
-ul#openings_list li ul.dates_list li ul.times_list li.selected {
+ul.times_list li.selected {
     background-color: #ff8686;
     border-color: #352929;
+}
+
+#submission_container {
+    position: fixed;
+    bottom: 0;
+    border-top: 1px solid #aaa;
+    padding: 10px;
+    background-color: #fff;
+}
+
+#submission_container #button_container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.callout {
+    font-size: 11px;
+    padding: 5px;
+    border-radius: 4px;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.callout-warning {
+    background-color: #ffcdcd;
+    border-color: #ff6262;
 }

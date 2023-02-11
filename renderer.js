@@ -107,19 +107,21 @@ const Renderer = {};
         }
     }
 
-    function renderSubmit(handleSubmit) {
-        const submitButtonId = 'appointment_submission';
-        if (Boolean(document.getElementById(submitButtonId))) {
-            document.getElementById(submitButtonId).onclick = handleSubmit;
-            return;
+    function renderSubmit(handleSubmit, scheduledApt) {
+        document.getElementById('appointment_submission').onclick = handleSubmit;
+
+        console.log('render submit scheduled apt', scheduledApt);
+        if (Boolean(scheduledApt)) {
+            const scheduledWarning = document.getElementById('scheduled_warning');
+            scheduledWarning.textContent = `לתשומת לבך! קיים במערכת תור ל- ${scheduledApt.stationName}`+
+                ` בתאריך ${scheduledApt.date.toLocaleDateString('he-IL')} בשעה ${scheduledApt.date.toLocaleTimeString('he-IL')}. `+
+                'ניאלץ לבטל אותו לפני קביעת התור. ' +
+                'במידה והפעולה תיכשל אתם עלולים להישאר ללא תור!';
         }
 
-        const app = document.getElementById('app');
-        const submitButton = document.createElement('button');
-        submitButton.id = submitButtonId;
-        submitButton.appendChild(document.createTextNode('קביעת תור'));
-        submitButton.onclick = handleSubmit;
-        app.appendChild(submitButton);
+        const submissionContainer = document.getElementById('submission_container');
+        submissionContainer.style.display = 'block';
+        document.getElementById('app').style.paddingBottom = submissionContainer.offsetHeight + 'px';
     }
 
     function renderUnauthorized() {
