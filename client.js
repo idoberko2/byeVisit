@@ -20,7 +20,7 @@ const BASE_HEADERS = {
     accept: 'application/json, text/plain, */*',
 }
 
-function createClient({ appApiKey }) {
+function createClient({ appApiKey }, handleUnauthorized) {
     /**
      * 
      * @returns {Station[]}
@@ -138,6 +138,50 @@ function createClient({ appApiKey }) {
         throw new Error('missing api key');
     }
 
+    async function sendGet(appApiKey, url) {
+        const response = await fetch(url, {
+            mode: 'cors',
+            headers: {
+                ...BASE_HEADERS,
+                'application-api-key': appApiKey,
+            }
+        });
+        return handleResponse(response);
+    }
+    
+    async function sendPost(appApiKey, url, body) {
+        const response = await fetch(url, {
+            mode: 'cors',
+            headers: {
+                ...BASE_HEADERS,
+                'application-api-key': appApiKey,
+                'content-type': 'application/json',
+            },
+            method: 'POST',
+            body: body && JSON.stringify(body),
+        });
+        return handleResponse(response);
+    }
+    
+    async function handleResponse(response) {
+        if (response.status == 401) {
+            handleUnauthorized();
+            throw ErrUnauthorized;
+        }
+        if (!response.ok) {
+            console.error('request failed with code', response.status);
+            return;
+        }
+        const responseJson = await response.json();
+        console.debug({ responseJson });
+        if (!responseJson.Success) {
+            console.error('failed requesting for stations');
+            return;
+        }
+    
+        return responseJson;
+    }
+
     return {
         getStations,
         getScheduledAppointment,
@@ -146,49 +190,6 @@ function createClient({ appApiKey }) {
         prepareVisit,
         setAppointment,
     };
-}
-
-async function sendGet(appApiKey, url) {
-    const response = await fetch(url, {
-        mode: 'cors',
-        headers: {
-            ...BASE_HEADERS,
-            'application-api-key': appApiKey,
-        }
-    });
-    return handleResponse(response);
-}
-
-async function sendPost(appApiKey, url, body) {
-    const response = await fetch(url, {
-        mode: 'cors',
-        headers: {
-            ...BASE_HEADERS,
-            'application-api-key': appApiKey,
-            'content-type': 'application/json',
-        },
-        method: 'POST',
-        body: body && JSON.stringify(body),
-    });
-    return handleResponse(response);
-}
-
-async function handleResponse(response) {
-    if (response.status == 401) {
-        throw ErrUnauthorized;
-    }
-    if (!response.ok) {
-        console.error('request failed with code', response.status);
-        return;
-    }
-    const responseJson = await response.json();
-    console.debug({ responseJson });
-    if (!responseJson.Success) {
-        console.error('failed requesting for stations');
-        return;
-    }
-
-    return responseJson;
 }
 
 function parseHumanReadableTime(time) {
