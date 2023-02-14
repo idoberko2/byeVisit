@@ -87,14 +87,14 @@ const Renderer = {};
     
             const labelTxt = document.createTextNode(s.name);
             const label = document.createElement('label');
-            label.for = checkboxId;
+            label.htmlFor = checkboxId;
             label.value = s.id;
             label.appendChild(labelTxt);
     
             const item = document.createElement('li');
             item.id = getListItemId(s.id);
-            item.appendChild(label);
             item.appendChild(input);
+            item.appendChild(label);
             list.appendChild(item);
         });
 
