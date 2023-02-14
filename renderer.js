@@ -27,7 +27,6 @@ const Renderer = {};
         }
     
         openings.removeChild(openingsHeader);
-        document.getElementById('settings_container').style.display = 'block';
     }
     
     function renderOpening(stationOpenings, handleSelect) {
@@ -144,6 +143,26 @@ const Renderer = {};
         document.getElementById('unauthorized').style.display = 'block';
     }
 
+    function toggleSettings() {
+        const settingsBtn = document.getElementById('settings');
+        const form = document.getElementById('settings_form');
+        const aptOpenings = document.getElementById('appointment_openings');
+        console.log('classList:', settingsBtn.classList);
+        if (settingsBtn.classList.contains('selected')) {
+            form.style.display = 'none';
+            aptOpenings.style.display = 'block';
+            settingsBtn.classList.remove('selected');
+        } else {
+            form.style.display = 'block';
+            aptOpenings.style.display = 'none';
+            settingsBtn.classList.add('selected');
+        }
+    }
+
+    function toggleSettingsEnabled(isEnabled) {
+        document.getElementById('settings').disabled = !isEnabled;
+    }
+
     function getCheckboxId(stationId) {
         return `chkbx_${stationId}`;
     }
@@ -160,6 +179,8 @@ const Renderer = {};
     Renderer.renderOpenings = renderOpenings;
     Renderer.renderSubmit = renderSubmit;
     Renderer.renderUnauthorized = renderUnauthorized;
+    Renderer.toggleSettings = toggleSettings;
+    Renderer.toggleSettingsEnabled = toggleSettingsEnabled;
     Renderer.getListItemId = getListItemId;
     Renderer.getTimeId = getTimeId;
 })();
