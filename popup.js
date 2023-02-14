@@ -1,6 +1,8 @@
 const NUMBER_OF_MONTHS = 3;
 
 (async function main(state) {
+    // window.location.href = 'success.html';
+    // return;
     chrome.runtime.onMessage.addListener(
         (request, sender, sendResponse) => {
             if (request.type == 'CREDENTIALS_SET') {
@@ -147,11 +149,13 @@ function createSetAppointmentHandler(state, client, stationId, calendarDate, tim
             return;
         }
 
+        const submitBtn = document.getElementById('appointment_submission');
+        submitBtn.disabled = true;
         try {
             const visitId = await client.prepareVisit(state.id, state.phone);
             await client.cancelAppointment(state.scheduledApt.visitId);
             await client.setAppointment(visitId, stationId, calendarDate, timeId);
-            console.debug('success');
+            window.location.href = 'success.html';
         } catch (e) {
             console.error(e);
         }
