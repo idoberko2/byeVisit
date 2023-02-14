@@ -1,0 +1,22 @@
+body {
+    width: 361px;
+    height: 100%;
+    direction: rtl;
+    font-family: 'Noto Sans Hebrew', sans-serif;
+    font-size: 14pt ;
+    margin: 0;
+}
+
+button, input {
+    font: inherit;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+body > main {
+    margin: 8px 8px 0;
+    padding-bottom: 8px;
+}
