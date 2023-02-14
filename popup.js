@@ -28,14 +28,7 @@ const NUMBER_OF_MONTHS = 3;
         );
     }
 
-    document.getElementById('edit_station_selection').onclick = () => {
-        const form = document.getElementById('settings_form');
-        if (form.style.display == 'block') {
-            form.style.display = 'none';
-        } else {
-            form.style.display = 'block';
-        }
-    }
+    document.getElementById('settings').onclick = Renderer.toggleSettings;
 })({});
 
 function loadCredentials(state) {
@@ -116,7 +109,7 @@ function selectedStationsPersistor(state, form) {
             state.phone = phone;
         });
 
-        document.getElementById('edit_station_selection').style.display = 'block';
+        window.location.href = 'popup.html';
 
         return false;
     }
@@ -127,9 +120,8 @@ function isInitialized(state) {
 }
 
 function gettingStartedFlow() {
-    document.getElementById('settings_container').style.display = 'block';
-    document.getElementById('settings_form').style.display = 'block';
-    document.getElementById('edit_station_selection').style.display = 'none';
+    Renderer.toggleSettings();
+    Renderer.toggleSettingsEnabled(false);
 }
 
 function createSelectHandler(state, client) {

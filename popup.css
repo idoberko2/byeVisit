@@ -27,18 +27,26 @@ body > main {
     padding-bottom: 10px;
 }
 
-#edit_station_selection {
+#settings {
     background: none;
     border: none;
     background-color: #aaa;
     -webkit-mask: url(gear-solid.svg) no-repeat center;
     mask: url(gear-solid.svg) no-repeat center;
     width: 18px;
+}
+
+#settings:not(:disabled) {
     cursor: pointer;
 }
 
-#edit_station_selection:hover {
+#settings:not(:disabled):hover {
     background-color: #5a4848;
+}
+
+#settings.selected {
+    -webkit-mask: url(arrow-right-solid.svg) no-repeat center;
+    mask: url(arrow-right-solid.svg) no-repeat center;
 }
 
 .bmac_link {
