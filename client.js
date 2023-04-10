@@ -87,7 +87,7 @@ function createClient({ appApiKey }, handleUnauthorized) {
     async function prepareVisit(id, phone) {
         const prepare = await sendPost(appApiKey, 'https://central.myvisit.com/CentralAPI/Organization/56/PrepareVisit');
         if (!prepare.Success) {
-            console.info('failed initial preparation');
+            console.error('failed initial preparation');
             throw ErrPrepareVisitFailed;
         }
 
@@ -102,7 +102,7 @@ function createClient({ appApiKey }, handleUnauthorized) {
             AnswerText: id,
         });
         if (!idAnswer.Success) {
-            console.info('failed answering for id');
+            console.error('failed answering for id');
             throw ErrPrepareVisitFailed;
         }
 
@@ -114,7 +114,7 @@ function createClient({ appApiKey }, handleUnauthorized) {
             AnswerText: phone,
         });
         if (!phoneAnswer.Success) {
-            console.info('failed answering for phone');
+            console.error('failed answering for phone');
             throw ErrPrepareVisitFailed;
         }
 

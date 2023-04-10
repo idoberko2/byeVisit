@@ -1,8 +1,6 @@
 const NUMBER_OF_MONTHS = 3;
 
 (async function main(state) {
-    // window.location.href = 'success.html';
-    // return;
     chrome.runtime.onMessage.addListener(
         (request, sender, sendResponse) => {
             if (request.type == 'CREDENTIALS_SET') {
