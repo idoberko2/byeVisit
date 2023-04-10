@@ -187,7 +187,7 @@ function createClient({ appApiKey }, handleUnauthorized) {
         const responseJson = await response.json();
         console.debug({ responseJson });
         if (!responseJson.Success) {
-            console.error('failed requesting for stations');
+            console.error(`failed requesting for ${response.url}`);
             return;
         }
     

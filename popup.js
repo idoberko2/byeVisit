@@ -153,7 +153,12 @@ function createSetAppointmentHandler(state, client, stationId, calendarDate, tim
         submitBtn.disabled = true;
         try {
             const visitId = await client.prepareVisit(state.id, state.phone);
-            await client.cancelAppointment(state.scheduledApt.visitId);
+
+            // cancel appointment if it is already exists
+            if (Boolean(state.scheduledApt)) {
+                await client.cancelAppointment(state.scheduledApt.visitId);
+            }
+            
             await client.setAppointment(visitId, stationId, calendarDate, timeId);
             window.location.href = 'success.html';
         } catch (e) {
