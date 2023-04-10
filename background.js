@@ -8,15 +8,19 @@ chrome.webRequest.onSendHeaders.addListener(
         const credentials = await loadCredentialsFromStorage() || {};
         let updatedApiKey = false;
         for (header of details.requestHeaders) {
-            if (header.name.toLowerCase() == 'application-api-key' && header.value != credentials.appApiKey) {
-                credentials.appApiKey = header.value;
-                console.debug('got fresh app api key');
-                updatedApiKey = true;
+            if (header.name.toLowerCase() == 'application-api-key') {
+                console.debug('found api key')
+                if (header.value != credentials.appApiKey) {
+                    credentials.appApiKey = header.value;
+                    console.debug('stored fresh app api key');
+                    updatedApiKey = true;
+                } else {
+                    console.debug('fresh app api key is already stored');
+                }
             }
         }
 
         if (!updatedApiKey) {
-            console.debug('did not find appApiKey header');
             return;
         }
 
